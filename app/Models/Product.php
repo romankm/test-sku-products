@@ -10,10 +10,10 @@ class Product extends Model
 {
     use HasFactory;
 
-    public function scopeSearchByScu(Builder $builder, string $sku = ''): void
+    public function scopeSearchBySku(Builder $builder, string $sku = ''): void
     {
         $builder->when($sku, function ($builder) use ($sku) {
-            $builder->where('sku', $sku);
+            $builder->where('sku', 'LIKE',  "%{$sku}%");
         });
     }
 }

@@ -3,41 +3,34 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Http\Request;
+use App\Transformers\ProductTransformer;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
-use League\Fractal\Resource\ResourceAbstract;
+use League\Fractal\Resource\Item;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(): string
     {
-        $fractal = new Manager;
-
         $searchQuery = '';
 
         if (request()->has('query')) {
             $searchQuery = request('query');
         }
 
-        $products = Product::searchByScu($searchQuery)->get();
+        $products = Product::searchBySku($searchQuery)->get();
 
-        $resource = new Collection($products, function (Product $product) {
-            return [
-                'id' => $product->id,
-                'sku' => $product->sku,
-                'name' => $product->name,
-            ];
-        });
+        $fractal  = new Manager;
+        $resource = new Collection($products, new ProductTransformer);
 
-        $response = $fractal->createData($resource)->toJson();
-
-        return $response;
+        return $fractal->createData($resource)->toJson();
     }
 
-    public function show(Request $request, Product $product)
+    public function show(int $product): string
     {
-        dd($product);
-        return $product;
+        $fractal = new Manager;
+        $product = Product::where('id', $product)->firstOrFail();
+
+        return $fractal->createData(new Item($product, new ProductTransformer))->toJson();
     }
 }

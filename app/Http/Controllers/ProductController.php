@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Transformers\ProductTransformer;
+use Illuminate\Http\Request;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
@@ -26,10 +27,9 @@ class ProductController extends Controller
         return $fractal->createData($resource)->toJson();
     }
 
-    public function show(int $product): string
+    public function show(Product $product): string
     {
         $fractal = new Manager;
-        $product = Product::where('id', $product)->firstOrFail();
 
         return $fractal->createData(new Item($product, new ProductTransformer))->toJson();
     }
